@@ -93,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       LoginResponse response =  await Api().loginUser(loginUser);
                       await SharedToken().saveToken(response.access_token, response.refresh_token);
-                      Navigator.pushReplacementNamed(context, '/profile');
+                      Navigator.pushReplacementNamed(context, '/qrcode');
                     }
                   }, 
                   child: Text('Войти'),

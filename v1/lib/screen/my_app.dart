@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:test2/screen/2fa/qr_screen.dart';
 import 'package:test2/screen/login_screen.dart';
 import 'package:test2/screen/profile_screen.dart';
 import 'package:test2/screen/registr_screen.dart';
@@ -13,7 +14,8 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login' : (context) => LoginScreen(),
         '/registor' : (context) => RegistrScreen(),
-        '/profile' : (context) => ProfileScreen()
+        '/profile' : (context) => ProfileScreen(),
+        '/qrcode' : (context) => QrScreen()
       }, 
     );
   }
