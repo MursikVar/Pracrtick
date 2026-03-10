@@ -16,7 +16,7 @@ class _QrScreenState extends State<QrScreen> {
     autoPadding: true,
     secretKeyStyle: SecretKeyStyle.upperLowerCase,
   );
-  String appName = "TOTP"; //Give your app name
+  String appName = "TOTP";
 
   @override
   Widget build(BuildContext context) {
@@ -41,12 +41,17 @@ class _QrScreenState extends State<QrScreen> {
             child: TextField(
               controller: TextEditingController(text: secret),
               decoration: InputDecoration(
-                suffixIcon: IconButton(onPressed: (){
-                  Clipboard.setData(ClipboardData(text: secret));
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Секретный ключ скопирован успешно'))
-                  );
-                }, icon: Icon(Icons.copy)),
+                suffixIcon: IconButton(
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: secret));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Секретный ключ скопирован успешно'),
+                      ),
+                    );
+                  },
+                  icon: Icon(Icons.copy),
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(20)),
                 ),
