@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:test2/api/api.dart';
+import 'package:test2/model/authentication/email_otp.dart';
 import 'package:test2/model/authentication/registr_user.dart';
 import 'package:test2/shared/shared_token.dart';
 
@@ -15,11 +18,13 @@ class _RegistrScreenState extends State<RegistrScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _checkPassword = true;
   bool _checkRepeatPassword = true;
+  final String code = (Random().nextInt(999999) + 100000).toString();
 
   final _loginController = TextEditingController();
   final _userNameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _repeatPasswordController = TextEditingController();
+  
 
   @override
   void dispose() {
@@ -156,7 +161,9 @@ class _RegistrScreenState extends State<RegistrScreen> {
                             response.access_token,
                             response.refresh_token,
                           );
-                          Navigator.pushReplacementNamed(context, '/profile');
+                          final emailOtp =  EmailOtp(login: _loginController.text.trim(), code: code);
+                          await Api().emailOtp(emailOtp);
+                          Navigator.pushReplacementNamed(context, '/emailOtp', arguments: emailOtp);
                         }
                       },
                       child: Text('Заргистрироваться'),

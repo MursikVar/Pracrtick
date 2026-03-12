@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:auth_totp/auth_totp.dart';
-import 'package:test2/screen/user_profile/profile_screen.dart';
+import 'package:test2/screen/user_profile/profile/profile_screen.dart';
 
 class VerificationPage extends StatefulWidget {
   final String secret;

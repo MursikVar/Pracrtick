@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:test2/model/authentication/email_otp.dart';
 import 'package:test2/model/google.dart';
 import 'package:test2/model/update/update_login.dart';
 import 'package:test2/model/update/update_password.dart';
@@ -39,7 +40,7 @@ class Api {
         throw Exception('Error');
       }
     } catch (e) {
-      throw Exception('Error');
+      throw Exception('e');
     }
   }
 
@@ -197,11 +198,33 @@ class Api {
         },
         body: jsonEncode(newPassword.toJson()),
       );
-      if(response.statusCode!=200){
+      if (response.statusCode != 200) {
         throw Exception('Error ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Error $e');
+    }
+  }
+
+  Future<void> emailOtp(EmailOtp emailOtp) async {
+    final url = Uri.parse(
+      '${Constant.SERVER_PATH}${ApiPath.API_MAIN}${ApiPath.API_AUTHENTICATION}/send-verification',
+    );
+
+    try {
+      final response = await http.post(
+        url,
+        body: jsonEncode(emailOtp.toJson()),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      );
+      if (response.statusCode != 200) {
+        throw Exception('Error ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception(e);
     }
   }
 }
