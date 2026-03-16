@@ -15,11 +15,10 @@ class Data(Base):
 
     login = Column(String(50), ForeignKey("student.login"), primary_key=True)
     email_token = Column(String(255), nullable=True)
-    google_token = Column(String(255), nullable=True)
+    google_id = Column(String(255), nullable=True)
     flutter_security_token = Column(String(255), nullable=True)
     yandex_token = Column(String(255), nullable=True)
     yandex_security_token = Column(String(255), nullable=True)
     password = Column(String(255), nullable=True)
     refresh_token = Column(String(255), nullable=True)
-
     student = relationship("Student", back_populates="data")
