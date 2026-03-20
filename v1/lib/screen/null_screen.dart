@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:test2/shared/shared_check_totp.dart';
 import 'package:test2/shared/shared_token.dart';
 
 class NullScreen extends StatefulWidget {
@@ -16,6 +17,9 @@ class _NullScreenState extends State<NullScreen> {
   }
 
   Future<void> _checkToken() async{
+    final shared = SharedCheckTotp();
+    // await shared.initDefault();
+
     final token = await  SharedToken().getToken();
 
     if(mounted){

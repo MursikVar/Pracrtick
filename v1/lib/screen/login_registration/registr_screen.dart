@@ -5,7 +5,6 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:test2/api/api.dart';
 import 'package:test2/model/authentication/email_otp.dart';
 import 'package:test2/model/authentication/registr_user.dart';
-import 'package:test2/shared/shared_token.dart';
 
 class RegistrScreen extends StatefulWidget {
   const RegistrScreen({super.key});
@@ -156,14 +155,9 @@ class _RegistrScreenState extends State<RegistrScreen> {
                             );
                             return;
                           }
-                          RegistrResponse response = await Api().registrUser(user);
-                          await SharedToken().saveToken(
-                            response.access_token,
-                            response.refresh_token,
-                          );
                           final emailOtp =  EmailOtp(login: _loginController.text.trim(), code: code);
                           await Api().emailOtp(emailOtp);
-                          Navigator.pushReplacementNamed(context, '/emailOtp', arguments: emailOtp);
+                          Navigator.pushReplacementNamed(context, '/emailOtp', arguments: {'emailOtp' : emailOtp, 'user' : user});
                         }
                       },
                       child: Text('Заргистрироваться'),

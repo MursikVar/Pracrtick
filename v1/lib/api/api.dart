@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:test2/model/authentication/email_otp.dart';
 import 'package:test2/model/google.dart';
+import 'package:test2/model/totp/totp_key.dart';
 import 'package:test2/model/update/update_login.dart';
 import 'package:test2/model/update/update_password.dart';
 import 'package:test2/model/update/update_user_name.dart';
@@ -40,7 +41,7 @@ class Api {
         throw Exception('Error');
       }
     } catch (e) {
-      throw Exception('e');
+      throw Exception(e);
     }
   }
 
@@ -225,6 +226,54 @@ class Api {
       }
     } catch (e) {
       throw Exception(e);
+    }
+  }
+
+  Future<TotpKey> getTotpKey(String access_token) async {
+    final url = Uri.parse(
+      '${Constant.SERVER_PATH}${ApiPath.API_MAIN}${ApiPath.API_TOTP}/get',
+    );
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $access_token',
+        },
+      );
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        return TotpKey.fromJson(responseData);
+      } else {
+        throw Exception('Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error $e');
+    }
+  }
+
+  Future<void> postTotpKey(String secret, String access_token) async {
+    final url = Uri.parse(
+      '${Constant.SERVER_PATH}${ApiPath.API_MAIN}${ApiPath.API_TOTP}/load',
+    );
+
+    try {
+      final response = await http.post(
+        url,
+        body: jsonEncode(TotpKeyGenerate(secret: secret).toJson()),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $access_token',
+        },
+      );
+      if(response.statusCode!=200){
+        throw Exception('Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
     }
   }
 }

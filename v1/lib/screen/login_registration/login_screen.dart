@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:test2/api/api.dart';
 import 'package:test2/model/authentication/login_user.dart';
+import 'package:test2/screen/2fa/totp_key_screen.dart';
+import 'package:test2/shared/shared_check_totp.dart';
 import 'package:test2/shared/shared_token.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -13,7 +15,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  bool _checkPassword = true;
+  bool _checkPassword = false;
   final _loginController = TextEditingController();
   final _passwordController = TextEditingController();
 
@@ -93,13 +95,28 @@ class _LoginScreenState extends State<LoginScreen> {
                             login: _loginController.text.trim(),
                             password: _passwordController.text.trim(),
                           );
-                    
-                          LoginResponse response = await Api().loginUser(loginUser);
-                          await SharedToken().saveToken(
-                            response.access_token,
-                            response.refresh_token,
+
+                          LoginResponse response = await Api().loginUser(
+                            loginUser,
                           );
-                          Navigator.pushReplacementNamed(context, '/qrcode');
+
+                          final bool? checkTotp = await SharedCheckTotp()
+                              .getBoolTotp();
+                          if (checkTotp == false) {
+                            await SharedToken().saveToken(
+                              response.access_token,
+                              response.refresh_token,
+                            );
+                            Navigator.pushReplacementNamed(context, '/profile');
+                          } else {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    TotpKeyScreen(response: response),
+                              ),
+                            );
+                          }
                         }
                       },
                       child: Text('Войти'),

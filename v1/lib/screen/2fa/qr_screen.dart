@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:auth_totp/auth_totp.dart';
-import 'package:test2/screen/2fa/verification_page.dart';
+import 'package:test2/api/api.dart';
+// import 'package:test2/model/authentication/login_user.dart';
 import 'package:flutter/services.dart';
+import 'package:test2/screen/2fa/verification_page.dart';
+import 'package:test2/shared/shared_token.dart';
 
 class QrScreen extends StatefulWidget {
   const QrScreen({super.key});
@@ -20,10 +23,14 @@ class _QrScreenState extends State<QrScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // final arguments = ModalRoute.of(context)!.settings.arguments as Map;
+    // final String access_token = arguments['response'] as LoginResponse;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("TOTP - код", style: TextStyle(color: Colors.black)),
         centerTitle: true,
+        leading: IconButton(onPressed: () => Navigator.pop(context), icon: Icon(Icons.exit_to_app)),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
@@ -61,31 +68,31 @@ class _QrScreenState extends State<QrScreen> {
             ),
           ),
           ElevatedButton(
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              final token = await SharedToken().getToken();
+              await Api().postTotpKey(secret, token!);
+
+              final result = Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => VerificationPage(secret: secret),
+                  builder: (context) =>
+                      VerificationPage(isSetup: true),
                 ),
               );
+              if (result == true) {
+                Navigator.pop(context, true);
+              }
+
+              // Navigator.pushReplacement(
+              //   context,
+              //   MaterialPageRoute(
+              //     builder: (context) => VerificationPage(response: response),
+              //   ),
+              // );
             },
             child: const Text("Ввести код"),
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            secret = AuthTOTP.createSecret(
-              length: 16,
-              autoPadding: true,
-              secretKeyStyle: SecretKeyStyle.upperLowerCase,
-            );
-            ;
-            print(AuthTOTP.generateTOTPCode(secretKey: secret, interval: 30));
-          });
-        },
-        child: const Icon(Icons.refresh),
       ),
     );
   }

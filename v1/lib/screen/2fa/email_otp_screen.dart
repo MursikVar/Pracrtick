@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:test2/api/api.dart';
 import 'package:test2/model/authentication/email_otp.dart';
+import 'package:test2/model/authentication/registr_user.dart';
+import 'package:test2/shared/shared_token.dart';
 
 class EmailOtpScreen extends StatefulWidget {
   const EmailOtpScreen({super.key});
@@ -20,8 +23,9 @@ class _EmailOtpScreenState extends State<EmailOtpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final EmailOtp emailOtp =
-        ModalRoute.of(context)!.settings.arguments as EmailOtp;
+    final arguments = ModalRoute.of(context)!.settings.arguments as Map;
+    final EmailOtp emailOtp = arguments['emailOtp'] as EmailOtp;
+    final RegistrUser user = arguments['user'] as RegistrUser;
 
     return Scaffold(
       appBar: AppBar(
@@ -53,19 +57,23 @@ class _EmailOtpScreenState extends State<EmailOtpScreen> {
                 ),
                 autofocus: true,
               ),
-              SizedBox(height: 20,),
+              SizedBox(height: 20),
               Container(
                 width: double.infinity,
-                child: ElevatedButton(onPressed: (){
-                  if(emailOtp.code == _codeController.text.trim()){
-                    Navigator.pushReplacementNamed(context, '/profile');
-                  }
-                  else{
-                    ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('пароли не совпадают')),
-                            );
-                  }
-                }, child: Text('Подтвердить код')),
+                child: ElevatedButton(
+                  onPressed: () async{
+                    if (emailOtp.code == _codeController.text.trim()) {
+                      RegistrResponse response = await Api().registrUser(user);
+                      await SharedToken().saveToken(response.access_token, response.refresh_token);
+                      Navigator.pushReplacementNamed(context, '/profile');
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('пароли не совпадают')),
+                      );
+                    }
+                  },
+                  child: Text('Подтвердить код'),
+                ),
               ),
             ],
           ),

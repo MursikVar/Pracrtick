@@ -6,6 +6,7 @@ import 'package:test2/model/update/update_password.dart';
 import 'package:test2/model/update/update_user_name.dart';
 import 'package:test2/screen/user_profile/home/user_home.dart';
 import 'package:test2/screen/user_profile/message/massage.dart';
+import 'package:test2/shared/shared_check_totp.dart';
 import 'package:test2/shared/shared_token.dart';
 import 'package:test2/widget/profile_card_widget.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -23,10 +24,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String? _error;
   int currentPageIndex = 0;
 
+  bool _isTotpKey = false;
+  final _prefHelper = SharedCheckTotp();
+
   @override
   void initState() {
     super.initState();
     _loadProfile();
+    _loadTotpKey();
+  }
+
+  Future<void> _loadTotpKey() async {
+    final enable = await _prefHelper.getBoolTotp();
+    if (mounted) {
+      setState(() {
+        _isTotpKey = enable!;
+      });
+    }
   }
 
   Future<void> _loadProfile() async {
@@ -61,17 +75,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   leading: IconButton(
-      //     onPressed: () async {
-      //       await SharedToken().deliteToken();
-      //       if (mounted) {
-      //         Navigator.pushReplacementNamed(context, '/login');
-      //       }
-      //     },
-      //     icon: Icon(Icons.access_alarm_rounded),
-      //   ),
-      // ),
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
           setState(() {
@@ -106,7 +109,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Text('Ошибка $_error'),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () async{
+              onPressed: () async {
                 Navigator.pushReplacementNamed(context, '/');
                 await SharedToken().deliteToken();
               },
@@ -138,6 +141,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _updateUserName,
                 ),
                 profileCardWidget('**************', 'Пароль', _updatePassword),
+                SizedBox(height: 20,),
+                _totpWidget(),
               ],
             ),
           ),
@@ -386,5 +391,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
       },
     );
+  }
+
+  Widget _totpWidget() {
+    if (_isTotpKey) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('2fa'),
+          Switch(value: _isTotpKey, 
+          onChanged: (value) async{
+            await _prefHelper.saveBoolTotp(value);
+            setState(() {
+              _isTotpKey = value;
+            });
+          }
+        ),
+        ],
+      );
+    } else {
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () async{
+              final result = Navigator.pushReplacementNamed(context, '/qrcode');
+              if(result == true){
+                await _loadTotpKey();
+              }
+            }, 
+            child: Text('Подключить 2fa')
+          ),
+        ),
+      );
+    }
   }
 }

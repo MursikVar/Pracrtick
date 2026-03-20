@@ -11,7 +11,6 @@ class AuthenticationScreen extends StatelessWidget {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title:  Text('TabBar Sample'),
           bottom:  TabBar(
             tabs: <Widget>[
               Tab(text: 'Войти',),

@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:auth_totp/auth_totp.dart';
 import 'package:test2/api/api.dart';
+import 'package:test2/model/authentication/login_user.dart';
 import 'package:test2/screen/user_profile/profile/profile_screen.dart';
-import 'package:test2/shared/shared_check_totp.dart';
 import 'package:test2/shared/shared_token.dart';
 
-class VerificationPage extends StatefulWidget {
-  final bool isSetup;
-  const VerificationPage({super.key, required this.isSetup});
+class TotpKeyScreen extends StatefulWidget {
+  final LoginResponse response;
+  const TotpKeyScreen({super.key, required this.response});
 
   @override
-  State<VerificationPage> createState() => _VerificationPageState();
+  State<TotpKeyScreen> createState() => _TotpKeyScreenState();
 }
 
-class _VerificationPageState extends State<VerificationPage> {
+class _TotpKeyScreenState extends State<TotpKeyScreen> {
   String code = "";
   String? _secret;
   bool _isLoading = true;
@@ -27,14 +27,11 @@ class _VerificationPageState extends State<VerificationPage> {
 
   Future<void> _fetchSecret() async {
     try {
-      final token = await SharedToken().getToken();
-      if (token != null) {
-        final totpKey = await Api().getTotpKey(token);
-        setState(() {
-          _secret = totpKey.totpkey;
-          _isLoading = false;
-        });
-      }
+      final totpKey = await Api().getTotpKey(widget.response.access_token);
+      setState(() {
+        _secret = totpKey.totpkey;
+        _isLoading = false;
+      });
     } catch (e) {
       setState(() {
         _error = e.toString();
@@ -84,23 +81,23 @@ class _VerificationPageState extends State<VerificationPage> {
                       );
                       String cleanCode = code.trim();
                       if (expected == cleanCode) {
-                        if (widget.isSetup) {
-                          await SharedCheckTotp().saveBoolTotp(true);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Congratulations, TOTP is correct"),
-                              backgroundColor: Colors.green,
-                              behavior: SnackBarBehavior.floating,
-                              margin: EdgeInsets.all(10),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(10),
-                                ),
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Congratulations, TOTP is correct"),
+                            backgroundColor: Colors.green,
+                            behavior: SnackBarBehavior.floating,
+                            margin: EdgeInsets.all(10),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(10),
                               ),
                             ),
-                          );
-                          Navigator.pop(context, true);
-                        }
+                          ),
+                        );
+                        await SharedToken().saveToken(
+                          widget.response.access_token,
+                          widget.response.refresh_token,
+                        );
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
